@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="res">
+    <file>tcp-cmport-color.jpg</file>
+    <file>tcp-cmport-color.png</file>
+  </qresource>
+</RCC>
