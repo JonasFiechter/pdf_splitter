@@ -1,7 +1,8 @@
 from src.raw.pdf_splitter import Ui_MainWindow
-from PyQt6.QtWidgets import QMainWindow, QApplication
+from PyQt6.QtWidgets import QMainWindow, QApplication, QMessageBox
 from src.components.file_dialog import open_file, get_path
-from src.components.progress_bar import fill_progress_bar
+from src.components.services import pdf_splitter, pdf_merger
+from src.components.success_dialog import CustomDialog
 import sys, os
 
 
@@ -9,8 +10,7 @@ class MainWindow(Ui_MainWindow, QMainWindow):
     def __init__(self):
         super().__init__()
         super().setupUi(self)
-        self.lock_buttons()
-        self.progressBar.setValue(0)
+        self.reset_state()
         self.open_file_btn.clicked.connect(lambda: self.select_file())
         self.split_radio_btn.clicked.connect(self.radio_btn_interact)
         self.merge_radio_btn.clicked.connect(self.radio_btn_interact)
@@ -18,11 +18,10 @@ class MainWindow(Ui_MainWindow, QMainWindow):
         self.execute_btn.clicked.connect(self.execute_operation)
         self.path = os.getcwd()
         self.destination_label.setText(f'Destination: {self.path}')
-        self.selected_files = []
+        self.setWindowTitle("TCP - PDF Splitter")
+        self.open_file_btn.setDisabled(True)
 
     def lock_buttons(self):
-        self.open_file_btn.setDisabled(True)
-        self.open_file_btn.disconnect()
         self.execute_btn.setDisabled(True)
 
     def unlock_buttons(self):
@@ -64,8 +63,23 @@ class MainWindow(Ui_MainWindow, QMainWindow):
         self.update_label(message)
 
     def execute_operation(self):
-        fill_progress_bar(self, 20)
+        if self.split_radio_btn.isChecked():
+            pdf_splitter(self, self.selected_files[0], 'range_here')
 
+        self.success_dialog()
+        self.reset_state()
+
+    def success_dialog(self):
+        dialog = QMessageBox(self)
+        dialog.setText("Success!")
+        dialog.show()
+
+    def reset_state(self):
+        self.lock_buttons()
+        self.progress = 0
+        self.pages = 0
+        self.progressBar.setValue(self.progress)
+        self.selected_files = []
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
