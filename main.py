@@ -1,7 +1,9 @@
 from src.raw.pdf_splitter import Ui_MainWindow
-from PyQt6.QtWidgets import QMainWindow, QApplication, QMessageBox
+from PyQt6.QtWidgets import QMainWindow, \
+                            QApplication, \
+                            QMessageBox
 from src.components.file_dialog import open_file, get_path
-from src.components.services import pdf_splitter, pdf_merger
+from src.components.services import pdf_splitter, pdf_merger, count_pdf_pages
 from src.components.success_dialog import CustomDialog
 import sys, os
 
@@ -28,6 +30,7 @@ class MainWindow(Ui_MainWindow, QMainWindow):
         self.execute_btn.setEnabled(True)
 
     def radio_btn_interact(self):
+        self.reset_state()
         self.open_file_btn.setEnabled(True)
         self.open_file_btn.setEnabled(True)
         self.update_page()
@@ -57,17 +60,25 @@ class MainWindow(Ui_MainWindow, QMainWindow):
             message = f'Select more files to merge!'
             self.execute_btn.setDisabled(True)
         else:
-            message=f'Selected {len(self.selected_files)} file(s)'
+            total_pages = count_pdf_pages(pdf_files=self.selected_files)
+            message=f'Selected {len(self.selected_files)} file(s)' \
+                    f' | Total pages - {total_pages}'
             self.unlock_buttons()
 
-        self.update_label(message)
+        self.update_label(message=message)
 
     def execute_operation(self):
         if self.split_radio_btn.isChecked():
             pdf_splitter(self, self.selected_files[0], 'range_here')
+        
+        elif self.merge_radio_btn.isChecked():
+            pdf_merger(self, self.selected_files)
 
         self.success_dialog()
         self.reset_state()
+    
+    def file_name_input(self):
+        dialog = Q
 
     def success_dialog(self):
         dialog = QMessageBox(self)
