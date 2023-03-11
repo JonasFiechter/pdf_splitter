@@ -15,11 +15,19 @@ class MainWindow(Ui_MainWindow, QMainWindow):
         super().setupUi(self)
 
         self.reset_state()
+        # General Buttons
         self.open_file_btn.clicked.connect(lambda: self.select_file())
         self.split_radio_btn.clicked.connect(self.radio_btn_interact)
         self.merge_radio_btn.clicked.connect(self.radio_btn_interact)
         self.destination_btn.clicked.connect(self.select_destination)
         self.execute_btn.clicked.connect(self.execute_operation)
+
+        # Custom options
+        self.custom_check_btn.clicked.connect(self.custom_mode_check)
+        self.range_radio_btn.clicked.connect(self.custom_btn_interact)
+        self.range_radio_btn_2.clicked.connect(self.custom_btn_interact)
+
+        # Other variables
         self.path = os.getcwd()
         self.destination_label.setText(f'Destination: {self.path}')
         self.setWindowTitle("TCP - PDF Splitter")
@@ -30,9 +38,31 @@ class MainWindow(Ui_MainWindow, QMainWindow):
         self.file_name_widget = QWidget()
         self.file_name_app = FileNameForm(self.file_name_widget)
 
-
+    # Buttons and fields
     def lock_buttons(self):
         self.execute_btn.setDisabled(True)
+        self.lock_custom_radio_btns()
+        self.lock_list_entry()
+        self.lock_range_fields()
+        self.lock_apply_btn()
+        self.lock_custom_check_btn()
+    
+    def lock_custom_check_btn(self):
+        self.custom_check_btn.setEnabled(False)
+
+    def lock_custom_radio_btns(self):
+        self.range_radio_btn.setEnabled(False)
+        self.range_radio_btn_2.setEnabled(False)
+
+    def lock_list_entry(self):
+        self.list_entry.setEnabled(False)
+    
+    def lock_range_fields(self):
+        self.starting_page.setEnabled(False)
+        self.ending_page.setEnabled(False)
+
+    def lock_apply_btn(self):
+        self.apply_btn.setEnabled(False)
 
     def unlock_buttons(self):
         self.execute_btn.setEnabled(True)
@@ -40,22 +70,48 @@ class MainWindow(Ui_MainWindow, QMainWindow):
     def radio_btn_interact(self):
         self.reset_state()
         self.open_file_btn.setEnabled(True)
-        self.open_file_btn.setEnabled(True)
+        if self.split_radio_btn.isChecked():
+            self.custom_check_btn.setEnabled(True)
+        else:
+            self.custom_check_btn.setEnabled(False)
         self.update_page()
 
     def select_destination(self):
         self.path = get_path(self)
         self.update_label(path=self.path)
 
+    def custom_btn_interact(self):
+        if self.range_radio_btn.isChecked():
+            self.list_entry.setEnabled(False)
+            self.starting_page.setEnabled(True)
+            self.ending_page.setEnabled(True)
+        elif self.range_radio_btn_2.isChecked():
+            self.list_entry.setEnabled(True)
+            self.starting_page.setEnabled(False)
+            self.ending_page.setEnabled(False)
+        self.update_page()
+    
+    def custom_mode_check(self):
+        if self.custom_check_btn.isChecked():
+            self.range_radio_btn.setEnabled(True)
+            self.range_radio_btn_2.setEnabled(True)
+            self.custom_btn_interact()
+        else:
+            self.lock_custom_radio_btns()
+            self.lock_list_entry()
+            self.lock_range_fields()
+
+
+    # Functions
+    def select_file(self):
+        self.selected_files = open_file(self)
+        self.update_page()
+
     def update_label(self, message='', path=''):
         if message:
             self.status_label.setText(message)
         elif path:
             self.destination_label.setText(f'Destination: {path}')
-
-    def select_file(self):
-        self.selected_files = open_file(self)
-        self.update_page()
 
     def update_page(self):
         if len(self.selected_files) == 0 and self.split_radio_btn.isChecked():
