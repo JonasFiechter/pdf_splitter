@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file '.\filename_input.ui'
+# Form implementation generated from reading ui file 'filename_input.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -13,15 +13,15 @@ class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.resize(351, 97)
-        self.lineEdit = QtWidgets.QLineEdit(parent=Form)
-        self.lineEdit.setGeometry(QtCore.QRect(20, 40, 311, 20))
-        self.lineEdit.setObjectName("lineEdit")
-        self.label = QtWidgets.QLabel(parent=Form)
-        self.label.setGeometry(QtCore.QRect(20, 10, 161, 16))
-        self.label.setObjectName("label")
-        self.pushButton = QtWidgets.QPushButton(parent=Form)
-        self.pushButton.setGeometry(QtCore.QRect(140, 70, 75, 23))
-        self.pushButton.setObjectName("pushButton")
+        self.file_name_input = QtWidgets.QLineEdit(parent=Form)
+        self.file_name_input.setGeometry(QtCore.QRect(20, 40, 311, 20))
+        self.file_name_input.setObjectName("file_name_input")
+        self.file_name_label = QtWidgets.QLabel(parent=Form)
+        self.file_name_label.setGeometry(QtCore.QRect(20, 10, 161, 16))
+        self.file_name_label.setObjectName("file_name_label")
+        self.file_name_btn = QtWidgets.QPushButton(parent=Form)
+        self.file_name_btn.setGeometry(QtCore.QRect(140, 70, 75, 23))
+        self.file_name_btn.setObjectName("file_name_btn")
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
@@ -29,5 +29,5 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
-        self.label.setText(_translate("Form", "Choose a name for your file:"))
-        self.pushButton.setText(_translate("Form", "Ok"))
+        self.file_name_label.setText(_translate("Form", "Choose a name for your file:"))
+        self.file_name_btn.setText(_translate("Form", "Ok"))

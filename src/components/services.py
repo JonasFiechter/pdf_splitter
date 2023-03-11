@@ -1,5 +1,6 @@
 from PyPDF2 import PdfReader, PdfWriter
 from src.components.progress_bar import fill_progress_bar
+from time import sleep
 
 #TODO: CHECK IF FILE NAMES ALREADY EXISTS, THIS FUNCTION CAN ERASE YOUR FILES
 
@@ -18,14 +19,16 @@ def pdf_splitter(self, pdf_path, files_range):
             new_page.write(output_stream)
         fill_progress_bar(self)
 
-def pdf_merger(self, pdf_files: list):
+def pdf_merger(self, file_name:str, pdf_files:list):
     new_pdf = PdfWriter()
+    self.pages = len(pdf_files)
     for file in pdf_files:
         pdf_file = PdfReader(file)
         for page in pdf_file.pages:
             new_pdf.add_page(page)
+            fill_progress_bar(self)
 
-    with open(f'{self.path}/testing_{len(new_pdf.pages)}.pdf', 'wb') as output_stream:
+    with open(f'{self.path}/{file_name}.pdf', 'wb') as output_stream:
         new_pdf.write(output_stream)
 
 def count_pdf_pages(pdf_files: list):

@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QLineEdit" name="lineEdit">
+  <widget class="QLineEdit" name="file_name_input">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -23,7 +23,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="file_name_label">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -36,7 +36,7 @@
     <string>Choose a name for your file:</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="file_name_btn">
    <property name="geometry">
     <rect>
      <x>140</x>

@@ -2,9 +2,10 @@ from src.raw.pdf_splitter import Ui_MainWindow
 from PyQt6.QtWidgets import QMainWindow, \
                             QApplication, \
                             QMessageBox
+from src.components.file_name_form import FileNameForm
 from src.components.file_dialog import open_file, get_path
 from src.components.services import pdf_splitter, pdf_merger, count_pdf_pages
-from src.components.success_dialog import CustomDialog
+from PyQt6.QtWidgets import QWidget
 import sys, os
 
 
@@ -12,6 +13,7 @@ class MainWindow(Ui_MainWindow, QMainWindow):
     def __init__(self):
         super().__init__()
         super().setupUi(self)
+
         self.reset_state()
         self.open_file_btn.clicked.connect(lambda: self.select_file())
         self.split_radio_btn.clicked.connect(self.radio_btn_interact)
@@ -22,6 +24,12 @@ class MainWindow(Ui_MainWindow, QMainWindow):
         self.destination_label.setText(f'Destination: {self.path}')
         self.setWindowTitle("TCP - PDF Splitter")
         self.open_file_btn.setDisabled(True)
+        self.file_name = ""
+
+        # Instance of Filename form
+        self.file_name_widget = QWidget()
+        self.file_name_app = FileNameForm(self.file_name_widget)
+
 
     def lock_buttons(self):
         self.execute_btn.setDisabled(True)
@@ -70,20 +78,19 @@ class MainWindow(Ui_MainWindow, QMainWindow):
     def execute_operation(self):
         if self.split_radio_btn.isChecked():
             pdf_splitter(self, self.selected_files[0], 'range_here')
-        
-        elif self.merge_radio_btn.isChecked():
-            pdf_merger(self, self.selected_files)
 
-        self.success_dialog()
-        self.reset_state()
-    
-    def file_name_input(self):
-        dialog = Q
+            self.success_dialog()
+
+        elif self.merge_radio_btn.isChecked():
+            self.pages = count_pdf_pages(self.selected_files)
+            self.open_file_name_form()
 
     def success_dialog(self):
         dialog = QMessageBox(self)
         dialog.setText("Success!")
         dialog.show()
+        button_ok = dialog.buttons()[0]
+        button_ok.clicked.connect(self.reset_state)
 
     def reset_state(self):
         self.lock_buttons()
@@ -91,6 +98,18 @@ class MainWindow(Ui_MainWindow, QMainWindow):
         self.pages = 0
         self.progressBar.setValue(self.progress)
         self.selected_files = []
+
+    def open_file_name_form(self):
+        self.file_name_widget.show()
+        self.file_name_app.file_name_btn.clicked.connect(self.get_file_name)
+
+    def get_file_name(self):
+        self.file_name = self.file_name_app.file_name_input.text()
+        if self.file_name:
+            pdf_merger(self, file_name=self.file_name, pdf_files=self.selected_files)
+            self.file_name_widget.close()
+            self.success_dialog()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
