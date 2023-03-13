@@ -6,7 +6,7 @@ from time import sleep
 
 #   Function that makes the magic happen, will be implemented a range of
 # starting and ending page so the user can choose which pages to split
-def pdf_splitter(self, pdf_path, files_range):
+def pdf_splitter(self, pdf_path, pages_range):
     pdf_file = PdfReader(f'{pdf_path}', 'rb')
     total_pages = len(pdf_file.pages)
     pdf_name = get_file_name(full_path=pdf_path)
