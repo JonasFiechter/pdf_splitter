@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QMainWindow, \
                             QMessageBox
 from src.components.file_name_form import FileNameForm
 from src.components.file_dialog import open_file, get_path
-from src.components.services import pdf_splitter, pdf_merger, count_pdf_pages
+from src.components.services import pdf_splitter, pdf_merger, count_pdf_pages, check_custom_data
 from PyQt6.QtWidgets import QWidget
 import sys, os
 
@@ -15,6 +15,7 @@ class MainWindow(Ui_MainWindow, QMainWindow):
         super().setupUi(self)
 
         self.reset_state()
+
         # General Buttons
         self.open_file_btn.clicked.connect(lambda: self.select_file())
         self.split_radio_btn.clicked.connect(self.radio_btn_interact)
@@ -72,8 +73,11 @@ class MainWindow(Ui_MainWindow, QMainWindow):
 
 
     def apply_configuration(self):
-        
-        pass
+        check_custom_data(
+            pages_list=self.list_entry.text(), 
+            page_start=self.starting_page,
+            page_end=self.ending_page
+            )
 
     # Functions
     def select_file(self):
@@ -88,15 +92,17 @@ class MainWindow(Ui_MainWindow, QMainWindow):
 
     # Check for faults and update the window behavior;
     def update_page(self):
-        print('running update_page')
 
         # Verify and switch between range fields and list of pages;
         if self.range_radio_btn.isChecked():
+            self.list_entry.setText('')
             self.list_entry.setDisabled(True)
             self.starting_page.setEnabled(True)
             self.ending_page.setEnabled(True)
         elif self.range_radio_btn_2.isChecked():
             self.list_entry.setEnabled(True)
+            self.starting_page.setValue(0)
+            self.ending_page.setValue(0)
             self.starting_page.setDisabled(True)
             self.ending_page.setDisabled(True)
 

@@ -1,6 +1,5 @@
 from PyPDF2 import PdfReader, PdfWriter
 from src.components.progress_bar import fill_progress_bar
-from time import sleep
 
 #TODO: CHECK IF FILE NAMES ALREADY EXISTS, THIS FUNCTION CAN ERASE YOUR FILES
 
@@ -43,3 +42,6 @@ def get_file_name(full_path: str) -> str:
     splitted_path = full_path.split('/')
 
     return splitted_path[-1]
+
+def check_custom_data(pages_list=[], page_start=0, page_end=0):
+    pass
