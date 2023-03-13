@@ -14,8 +14,6 @@ class MainWindow(Ui_MainWindow, QMainWindow):
         super().__init__()
         super().setupUi(self)
 
-        self.reset_state()
-
         # General Buttons
         self.open_file_btn.clicked.connect(lambda: self.select_file())
         self.split_radio_btn.clicked.connect(self.radio_btn_interact)
@@ -36,11 +34,23 @@ class MainWindow(Ui_MainWindow, QMainWindow):
         self.setWindowTitle("TCP - PDF Splitter")
         self.open_file_btn.setDisabled(True)
         self.file_name = ""
-        self.pages_range = []
+        self.total_pages = 0
+        self.customized_pages = False
 
         # Instance of Filename form
         self.file_name_widget = QWidget()
         self.file_name_app = FileNameForm(self.file_name_widget)
+
+        #Initial state
+        self.lock_buttons()
+        self.progress = 0
+        self.pages = 0
+        self.progressBar.setValue(self.progress)
+        self.selected_files = []
+        self.error_state = False
+        self.list_entry.setText('')
+        self.starting_page.setValue(1)
+        self.ending_page.setValue(2)
 
     # Buttons and fields
     def lock_buttons(self):
@@ -59,29 +69,38 @@ class MainWindow(Ui_MainWindow, QMainWindow):
 
     # Check and switch between split and merge options;
     def radio_btn_interact(self):
-        self.reset_state()
+        # self.reset_state()
         self.open_file_btn.setEnabled(True)
         if self.split_radio_btn.isChecked():
-            self.custom_check_btn.setEnabled(True)
+            if self.selected_files:
+                self.custom_check_btn.setEnabled(True)
         else:
             self.custom_check_btn.setDisabled(True)
         self.update_page()
+
 
     def select_destination(self):
         self.path = get_path(self)
         self.update_label(path=self.path)
 
-
     def apply_configuration(self):
-        check_custom_data(
-            pages_list=self.list_entry.text(), 
-            page_start=self.starting_page,
-            page_end=self.ending_page
+        check_result, error = check_custom_data(
+                pages_list = self.list_entry.text(), 
+                page_start = self.starting_page.value(),
+                page_end = self.ending_page.value(),
+                total_pages = self.total_pages
             )
+        if error:
+            self.error_dialog(message=error)
+        else:
+            self.customized_pages = check_result
+
+        self.update_page()
 
     # Functions
     def select_file(self):
         self.selected_files = open_file(self)
+        self.total_pages = count_pdf_pages(pdf_files=self.selected_files)
         self.update_page()
 
     def update_label(self, message='', path=''):
@@ -92,6 +111,14 @@ class MainWindow(Ui_MainWindow, QMainWindow):
 
     # Check for faults and update the window behavior;
     def update_page(self):
+        if self.selected_files and self.split_radio_btn.isChecked():
+            self.custom_check_btn.setEnabled(True)
+        else:
+            self.range_radio_btn.setDisabled(True)
+            self.range_radio_btn_2.setDisabled(True)
+            self.list_entry.setDisabled(True)
+            self.starting_page.setDisabled(True)
+            self.ending_page.setDisabled(True)
 
         # Verify and switch between range fields and list of pages;
         if self.range_radio_btn.isChecked():
@@ -101,13 +128,13 @@ class MainWindow(Ui_MainWindow, QMainWindow):
             self.ending_page.setEnabled(True)
         elif self.range_radio_btn_2.isChecked():
             self.list_entry.setEnabled(True)
-            self.starting_page.setValue(0)
-            self.ending_page.setValue(0)
+            self.starting_page.setValue(1)
+            self.ending_page.setValue(2)
             self.starting_page.setDisabled(True)
             self.ending_page.setDisabled(True)
 
         # Verify and enables or disables custom functionalities
-        if self.custom_check_btn.isChecked():
+        if self.custom_check_btn.isChecked() and self.split_radio_btn.isChecked():
             self.range_radio_btn.setEnabled(True)
             self.range_radio_btn_2.setEnabled(True)
         else:
@@ -117,32 +144,51 @@ class MainWindow(Ui_MainWindow, QMainWindow):
             self.starting_page.setDisabled(True)
             self.ending_page.setDisabled(True)
             
-        if self.selected_files and self.custom_check_btn.isChecked():
-            self.apply_btn.setEnabled(True)
+        if self.selected_files:
+            if self.custom_check_btn.isChecked() and not self.merge_radio_btn.isChecked():
+                self.apply_btn.setEnabled(True)
+            else:
+                self.apply_btn.setDisabled(True)
         else:
             self.apply_btn.setDisabled(True)
+
+        if len(self.selected_files) == 1:
+            file_ = 'file'
+        else:
+            file_ = 'files'
 
         #   Verify state of selected files and options
         if not self.selected_files and self.split_radio_btn.isChecked():
             message = f'Select a PDF file!'
             self.execute_btn.setDisabled(True)
+        elif self.split_radio_btn.isChecked() and self.total_pages < 2:
+            message = f'PDF file need more pages to split!'
+            self.custom_check_btn.setDisabled(True)
         elif len(self.selected_files) > 1 and self.split_radio_btn.isChecked():
             message = f'Split one file at a time!'
             self.execute_btn.setDisabled(True)
         elif self.merge_radio_btn.isChecked() and len(self.selected_files) < 2:
             message = f'Select more files to merge!'
             self.execute_btn.setDisabled(True)
+        elif self.customized_pages:
+            pages = self.customized_pages
+            if type(self.customized_pages) == tuple:
+                message = f'Selected {len(self.selected_files)} {file_} | ' \
+                f'From page {pages[0]} to {pages[1]}'
+            else:
+                message = f'Selected {len(self.selected_files)} {file_} | ' \
+                    f'Total {len(pages)} pages'
+            self.execute_btn.setEnabled(True)
         else:
-            total_pages = count_pdf_pages(pdf_files=self.selected_files)
-            message=f'Selected {len(self.selected_files)} file(s)' \
-                    f' | Total pages - {total_pages}'
+            message = f'Selected {len(self.selected_files)} {file_} | ' \
+                    f'Total {self.total_pages} pages'
             self.execute_btn.setEnabled(True)
         
         self.update_label(message=message)
 
     def execute_operation(self):
         if self.split_radio_btn.isChecked():
-            pdf_splitter(self, self.selected_files[0], 'range_here')
+            pdf_splitter(self, self.selected_files[0], self.customized_pages)
             self.success_dialog()
             self.radio_btn_interact()
 
@@ -157,12 +203,24 @@ class MainWindow(Ui_MainWindow, QMainWindow):
         button_ok = dialog.buttons()[0]
         button_ok.clicked.connect(self.reset_state)
 
+    def error_dialog(self, message):
+        dialog = QMessageBox(self)
+        dialog.setText(message)
+        dialog.show()
+        button_ok = dialog.buttons()[0]
+        button_ok.clicked.connect(self.reset_state)
+
     def reset_state(self):
         self.lock_buttons()
         self.progress = 0
         self.pages = 0
-        self.progressBar.setValue(self.progress)
         self.selected_files = []
+        self.list_entry.setText('')
+        self.starting_page.setValue(1)
+        self.ending_page.setValue(2)
+        self.custom_check_btn.setChecked(False)
+        self.customized_pages = False
+        self.progressBar.setValue(self.progress)
 
     def open_file_name_form(self):
         self.file_name_widget.show()
