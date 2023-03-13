@@ -82,6 +82,7 @@ class MainWindow(Ui_MainWindow, QMainWindow):
     def select_destination(self):
         self.path = get_path(self)
         self.update_label(path=self.path)
+        self.update_page()
 
     def apply_configuration(self):
         check_result, error = check_custom_data(
@@ -111,6 +112,9 @@ class MainWindow(Ui_MainWindow, QMainWindow):
 
     # Check for faults and update the window behavior;
     def update_page(self):
+        if not self.path:
+            self.reset_state()
+        
         if self.selected_files and self.split_radio_btn.isChecked():
             self.custom_check_btn.setEnabled(True)
         else:

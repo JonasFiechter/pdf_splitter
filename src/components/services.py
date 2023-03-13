@@ -1,5 +1,6 @@
 from PyPDF2 import PdfReader, PdfWriter
 from src.components.progress_bar import fill_progress_bar
+import os
 
 #TODO: CHECK IF FILE NAMES ALREADY EXISTS, THIS FUNCTION CAN ERASE YOUR FILES
 
@@ -14,7 +15,8 @@ def pdf_splitter(self, pdf_path, customized_pages):
             current_page = pdf_file._get_page(index)
             new_page = PdfWriter()
             new_page.add_page(current_page)
-            with open(f'{self.path}/{pdf_name}_page_{index + 1}.pdf', 'wb') as output_stream:
+            file_name = check_current_dir(self.path, f'{pdf_name}_page_{index + 1}')
+            with open(file_name, 'wb') as output_stream:
                 new_page.write(output_stream)
             fill_progress_bar(self)
 
@@ -24,7 +26,8 @@ def pdf_splitter(self, pdf_path, customized_pages):
             current_page = pdf_file._get_page(index-1)
             new_page = PdfWriter()
             new_page.add_page(current_page)
-            with open(f'{self.path}/{pdf_name}_page_{index}.pdf', 'wb') as output_stream:
+            file_name = check_current_dir(self.path, f'{pdf_name}_page_{index}')
+            with open(file_name, 'wb') as output_stream:
                 new_page.write(output_stream)
             fill_progress_bar(self)
     else:
@@ -33,7 +36,8 @@ def pdf_splitter(self, pdf_path, customized_pages):
             current_page = pdf_file._get_page(index)
             new_page = PdfWriter()
             new_page.add_page(current_page)
-            with open(f'{self.path}/{pdf_name}_page_{index + 1}.pdf', 'wb') as output_stream:
+            file_name = check_current_dir(self.path, f'{pdf_name}_page_{index + 1}')
+            with open(file_name, 'wb') as output_stream:
                 new_page.write(output_stream)
             fill_progress_bar(self)
 
@@ -46,7 +50,8 @@ def pdf_merger(self, file_name:str, pdf_files:list):
             new_pdf.add_page(page)
             fill_progress_bar(self)
 
-    with open(f'{self.path}/{file_name}.pdf', 'wb') as output_stream:
+    file_name = check_current_dir(self.path, f'{file_name}')
+    with open(file_name, 'wb') as output_stream:
         new_pdf.write(output_stream)
 
 def count_pdf_pages(pdf_files: list):
@@ -86,3 +91,15 @@ def check_custom_data(pages_list='', page_start=0, page_end=0, total_pages=0):
             return None, error
         
         return (page_start, page_end), error
+    
+def check_current_dir(path, file_name, count=1):
+    #   This method can receive the path and the filename with one or two
+    # params and return the correct filename with a (+1) to avoid overwriting
+    # current files in case of files with the same name
+    #   Case two or more times use recursion????
+
+    if file_name + '.pdf' in os.listdir(path):
+        file_name += f'_{count}'
+        check_current_dir(path, file_name, count=count+1)
+    
+    return path + '/' + file_name + '.pdf'
