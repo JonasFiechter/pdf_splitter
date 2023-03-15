@@ -8,6 +8,8 @@ def pdf_splitter(self, pdf_path, customized_pages):
     pdf_file = PdfReader(f'{pdf_path}', 'rb')
     total_pages = len(pdf_file.pages)
     pdf_name = get_file_name(full_path=pdf_path)
+    pdf_name = pdf_name.replace('.pdf', '')
+    print('PDF inside pdf_splitter', pdf_name)
     
     if type(customized_pages) == tuple:
         self.pages = len(range(customized_pages[0]-1, customized_pages[1]))
@@ -93,8 +95,14 @@ def check_custom_data(pages_list='', page_start=0, page_end=0, total_pages=0):
         return (page_start, page_end), error
     
 def check_current_dir(path, file_name, count=1):
+    # print(os.listdir(path))
+    print(f'{path} - {file_name} - {count}')
     if file_name + '.pdf' in os.listdir(path):
-        file_name += f'_{count}'
-        check_current_dir(path, file_name, count=count+1)
-    
-    return path + '/' + file_name + '.pdf'
+        if count == 1:
+            file_name = file_name + f'({count})'
+        else:
+            file_name = file_name.replace(f'({count -1})', f'({count})')
+        return check_current_dir(path, file_name, count=count+1)
+
+    else:
+        return path + '/' + file_name + '.pdf'

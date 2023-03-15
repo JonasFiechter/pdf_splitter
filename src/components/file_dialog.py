@@ -1,6 +1,5 @@
 from PyQt6.QtWidgets import QFileDialog, QDialog
 
-
 def open_file(widget, *args):
     if widget.split_radio_btn.isChecked():
         temp_path = QFileDialog.getOpenFileName(
@@ -17,7 +16,7 @@ def open_file(widget, *args):
                                                     'Open Files', 
                                                     filter='*pdf'
                                                     )[0]
-    return current_path
+    return current_path if current_path else widget.selected_files
 
 def get_path(widget, *args):
     path = QFileDialog.getExistingDirectory(widget, 'Select destination')
