@@ -21,4 +21,5 @@ def open_file(widget, *args):
 
 def get_path(widget, *args):
     path = QFileDialog.getExistingDirectory(widget, 'Select destination')
+    print(path)
     return path

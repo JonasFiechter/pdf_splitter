@@ -78,12 +78,6 @@ class MainWindow(Ui_MainWindow, QMainWindow):
             self.custom_check_btn.setDisabled(True)
         self.update_page()
 
-
-    def select_destination(self):
-        self.path = get_path(self)
-        self.update_label(path=self.path)
-        self.update_page()
-
     def apply_configuration(self):
         check_result, error = check_custom_data(
                 pages_list = self.list_entry.text(), 
@@ -102,6 +96,13 @@ class MainWindow(Ui_MainWindow, QMainWindow):
     def select_file(self):
         self.selected_files = open_file(self)
         self.total_pages = count_pdf_pages(pdf_files=self.selected_files)
+        self.update_page()
+    
+    def select_destination(self):
+        new_path = get_path(self)
+        if new_path:
+            self.path = new_path
+        self.update_label(path=self.path)
         self.update_page()
 
     def update_label(self, message='', path=''):

@@ -93,11 +93,6 @@ def check_custom_data(pages_list='', page_start=0, page_end=0, total_pages=0):
         return (page_start, page_end), error
     
 def check_current_dir(path, file_name, count=1):
-    #   This method can receive the path and the filename with one or two
-    # params and return the correct filename with a (+1) to avoid overwriting
-    # current files in case of files with the same name
-    #   Case two or more times use recursion????
-
     if file_name + '.pdf' in os.listdir(path):
         file_name += f'_{count}'
         check_current_dir(path, file_name, count=count+1)
