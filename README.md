@@ -21,7 +21,7 @@ This app has the functionalities of splitting and merging PDF files
 
 ## Authors
 
-    @JonasFiechter
+[@JonasFiechter](https://github.com/JonasFiechter)
 
 ## Version History
 
