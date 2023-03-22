@@ -31,7 +31,7 @@ class MainWindow(Ui_MainWindow, QMainWindow):
         self.setFixedSize(599, 318)
         self.path = os.getcwd()
         self.destination_label.setText(f'Destination: {self.path}')
-        self.setWindowTitle("TCP - PDF Splitter")
+        self.setWindowTitle("PDF Splitter")
         self.open_file_btn.setDisabled(True)
         self.file_name = ""
         self.total_pages = 0

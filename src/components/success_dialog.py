@@ -4,7 +4,7 @@ class CustomDialog(QDialog):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("HELLO!")
+        self.setWindowTitle("Message")
 
         QBtn = QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
 
